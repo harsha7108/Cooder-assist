@@ -14,8 +14,13 @@ func New() Scanner {
 }
 
 func (s Scanner) GetUserMessage() (string, bool) {
-	if !s.scn.Scan() {
-		return "", false
+	var message string
+	for s.scn.Scan() {
+		line := s.scn.Text()
+		if line == "" {
+			return message, true
+		}
+		message += line + "\n"
 	}
-	return s.scn.Text(), true
+	return message, false
 }
