@@ -44,3 +44,17 @@ build: $(SRC)
 
 buildlinux: $(SRC)
 	GOOS=linux GOARCH=amd64 $(GO) build -v -ldflags '$(LDFLAGS)' -o $(BINDIR)/$(BINNAME_BASE) $(MAINDIR_BASE)
+
+buildcontainer: buildlinux
+	docker build -t $(BINNAME_BASE):${BINARY_VERSION} .
+
+fmt:
+	@echo go fmt ./...
+	$(GO) fmt ./...
+
+lint:
+	@echo run golangci-lint on project
+	@golangci-lint run --allow-parallel-runners ./...
+	
+clean:
+	@rm -rf $(BINDIR)

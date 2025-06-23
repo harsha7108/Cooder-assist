@@ -42,7 +42,6 @@ func New(model string, l log.Logger, client *genai.Client, scanner scanner.Scann
 func (a *Agent) Run(ctx context.Context, chat *genai.Chat) error {
 	var conversation []genai.Part
 	readUserInput := true
-
 	for {
 		select {
 		case <-ctx.Done():
