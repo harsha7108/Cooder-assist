@@ -17,6 +17,21 @@ Cooder Assist is a command-line tool designed to assist developers with coding-r
 *   **Configuration:** Uses a YAML configuration file to manage client settings (e.g., Gemini model).
 *   **Logging:** Provides logging functionality for debugging and monitoring.
 
+## Usage
+
+Before using this tool, you need to export the Google API key as an environment variable:
+
+```bash
+export GOOGLE_API_KEY="YOUR_API_KEY"
+```
+
+
+
+1.  **Configure the agent:** Modify the `agent-config-default.yml` file to set the desired Gemini model and other client settings.
+2.  **Build the application:** Run `make` to build the binaries.
+3.  **Run the application:** Execute the `cooder-assist-local` binary from the `bin/` directory.
+
+
 ## File Descriptions
 
 ### Configuration Files
@@ -108,19 +123,7 @@ google.golang.org/protobuf v1.36.1
 gopkg.in/yaml.v3 v3.0.1
 ```
 
-## Usage
 
-Before using this tool, you need to export the Google API key as an environment variable:
-
-```bash
-export GOOGLE_API_KEY="YOUR_API_KEY"
-```
-
-
-
-1.  **Configure the agent:** Modify the `agent-config-default.yml` file to set the desired Gemini model and other client settings.
-2.  **Build the application:** Run `make` to build the binaries.
-3.  **Run the application:** Execute the `cooder-assist-local` binary from the `bin/` directory.
 
 ## Contributing
 
