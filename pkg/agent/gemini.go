@@ -39,6 +39,8 @@ func New(model string, l log.Logger, client *genai.Client, scanner scanner.Scann
 	}
 }
 
+import "encoding/json"
+
 func (a *Agent) Run(ctx context.Context, chat *genai.Chat) error {
 	var conversation []genai.Part
 	readUserInput := true
@@ -56,7 +58,8 @@ func (a *Agent) Run(ctx context.Context, chat *genai.Chat) error {
 				fmt.Println("Error getting user input")
 				continue
 			}
-			conversation = append(conversation, genai.Part{Text: userInput})
+			a.Logger.Info("Executing tool", "tool_name", part.FunctionCall.Name, "prompt", part.FunctionCall.Args)
+					conversation = append(conversation, genai.Part{Text: userInput})
 			readUserInput = false // Only set to false after successful input
 		}
 
@@ -89,6 +92,7 @@ func (a *Agent) Run(ctx context.Context, chat *genai.Chat) error {
 				if len(part.Text) != 0 {
 					fmt.Printf("\u001b[93mGemini\u001b[0m: %s\n", part.Text)
 				} else if part.FunctionCall != nil {
+					a.Logger.Info("Executing tool", "tool_name", part.FunctionCall.Name, "prompt", part.FunctionCall.Args)
 					conversation = append(conversation, genai.Part{
 						FunctionResponse: a.Tools.ExecuteTool(part.FunctionCall),
 					})
