@@ -53,7 +53,7 @@ func newProvisioner() {
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
 		Backend: genai.BackendGeminiAPI,
 	})
-	logger := log.Init("provisioner", "/path/to/your/log/file.log")
+	logger := log.Init("provisioner", ".")
 	scanner := scanner.New()
 	tools := tools.New()
 	agent := agent.New(cfg.Client.Model, logger, client, scanner, tools)
