@@ -39,8 +39,6 @@ func New(model string, l log.Logger, client *genai.Client, scanner scanner.Scann
 	}
 }
 
-import "encoding/json"
-
 func (a *Agent) Run(ctx context.Context, chat *genai.Chat) error {
 	var conversation []genai.Part
 	readUserInput := true
@@ -58,8 +56,7 @@ func (a *Agent) Run(ctx context.Context, chat *genai.Chat) error {
 				fmt.Println("Error getting user input")
 				continue
 			}
-			a.Logger.Info("Executing tool", "tool_name", part.FunctionCall.Name, "prompt", part.FunctionCall.Args)
-					conversation = append(conversation, genai.Part{Text: userInput})
+			conversation = append(conversation, genai.Part{Text: userInput})
 			readUserInput = false // Only set to false after successful input
 		}
 

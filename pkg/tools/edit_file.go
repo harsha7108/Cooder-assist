@@ -13,7 +13,7 @@ import (
 const editFileDescription = `Edit the contents of the file at the given ` +
 	`relative 'path' argument by replacing instances of 'old_string' with 'new_string'. ` +
 	`'old_string' and 'new_string' muust be different from each other. If the file specified ` +
-	`in 'patyh' does not exist it will be created.`
+	`in 'patyh' does not exist it will be created. DO NOT EDIT FILES WITHOUT APPROVAL . ALWAYS ASK THE USER FOR APPROVAL`
 
 var editFileTool = &genai.Tool{
 	FunctionDeclarations: []*genai.FunctionDeclaration{

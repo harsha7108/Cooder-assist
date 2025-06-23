@@ -7,7 +7,7 @@ import (
 	"google.golang.org/genai"
 )
 
-const gitCommitDescription = `Stages all changes and creates a new Git commit with the given message.`
+const gitCommitDescription = `Stages all changes and creates a new Git commit with the given message. DONT COMMIT WITHOUT APPROVAL. ALWAYS ASK THE USER FOR APPROVAL`
 
 var gitCommitTool = &genai.Tool{
 	FunctionDeclarations: []*genai.FunctionDeclaration{
