@@ -13,7 +13,7 @@ type Tools []*genai.Tool
 
 func New() Tools {
 	genAITools := make([]*genai.Tool, 0)
-	genAITools = append(genAITools, readFileTool, listFilesTool, editFileTool, createFileTool, gitCommitTool)
+	genAITools = append(genAITools, readFileTool, listFilesTool, editFileTool, createFileTool, gitCommitTool, gitDiffTool)
 	return genAITools
 }
 
@@ -24,6 +24,7 @@ var (
 		"edit_file":   maps.Keys(editFileTool.FunctionDeclarations[0].Parameters.Properties),
 		"create_file": maps.Keys(createFileTool.FunctionDeclarations[0].Parameters.Properties),
 		"git_commit":  maps.Keys(gitCommitTool.FunctionDeclarations[0].Parameters.Properties),
+		"git_diff":    maps.Keys(gitDiffTool.FunctionDeclarations[0].Parameters.Properties),
 	}
 )
 
@@ -41,7 +42,7 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 
 		// Get required parameters based on tool name
 		switch name {
-		case "read_file", "list_files":
+		case "read_file", "list_files", "git_diff":
 			requiredParams = []string{"path"}
 		case "edit_file":
 			requiredParams = []string{"path", "old_string", "new_string"}
@@ -76,7 +77,19 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 				response["error"] = err.Error()
 			}
 		} else if call.Name == "edit_file" {
-			err := EditFile(call.Args["path"].(string), call.Args["old_string"].(string), call.Args["new_string"].(string))
+			// Call GitDiff before EditFile
+			diffOutput, err := GitDiff(call.Args["path"].(string))
+			if err != nil {
+				response["error"] = fmt.Errorf("failed to get git diff: %w", err)
+				return &genai.FunctionResponse{
+					ID:       call.ID,
+					Name:     call.Name,
+					Response: response,
+				}
+			}
+			response["output"] = "Git Diff:\n" + diffOutput
+
+			err = EditFile(call.Args["path"].(string), call.Args["old_string"].(string), call.Args["new_string"].(string))
 			if err == nil {
 				response["output"] = "OK"
 			} else {
@@ -108,6 +121,14 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 			} else {
 				response["error"] = err.Error()
 			}
+		} else if call.Name == "git_diff" {
+			content, err := GitDiff(call.Args["path"].(string))
+			if err == nil {
+				response["output"] = content
+			} else {
+				response["error"] = err.Error()
+			}
+
 		}
 	}
 
