@@ -7,12 +7,6 @@ Cooder Assist is a command-line tool designed to assist developers with coding-r
 ## Features
 
 *   **Intelligent Code Suggestions:** Uses the Gemini API to provide context-aware code suggestions and answers to coding questions.
-*   **File System Interaction:**
-    *   Create new files with specified content.
-    *   Edit existing files by replacing strings.
-    *   List files and directories in a given path.
-    *   Read the content of files.
-    *   Determine the file type.
 *   **Git Integration:** Stages all changes and creates a new Git commit with a provided message.
 *   **Configuration:** Uses a YAML configuration file to manage client settings (e.g., Gemini model).
 *   **Logging:** Provides logging functionality for debugging and monitoring.
@@ -27,9 +21,22 @@ export GOOGLE_API_KEY="YOUR_API_KEY"
 
 
 
-1.  **Configure the agent:** Modify the `agent-config-default.yml` file to set the desired Gemini model and other client settings.
-2.  **Build the application:** Run `make` to build the binaries.
-3.  **Run the application:** Execute the `cooder-assist-local` binary from the `bin/` directory.
+**Configure the agent:** Modify the `agent-config-default.yml` file or write your own config to set the desired Gemini model. 
+**Build the application:** 
+The `Makefile` provides targets for building the application.To build the application follow the instructions below
+
+*   **`make build`**: Builds the `cooder-assist-local` binary for your local operating system and architecture.
+*   **`make buildlinux`**: Builds the `cooder-assist` binary specifically for Linux (amd64 architecture).
+
+This will generate the `cooder-assist-local` and `cooder-assist` binaries in the `bin/` directory.
+**Running the Application:**
+
+To run the application, move the binary to the root of your codebase and run :
+
+```bash
+./cooder-assist-local --cfgPath=. --cfgFile=agent-config-default.yml
+```
+Where cfgPath is the path to config and cfgFile is the file name of the config
 
 
 ## File Descriptions
@@ -61,21 +68,9 @@ export GOOGLE_API_KEY="YOUR_API_KEY"
 
 ### Makefile
 
-The `Makefile` provides targets for building the application.To build the application follow the instructions below
 
-*   **`make build`**: Builds the `cooder-assist-local` binary for your local operating system and architecture.
-*   **`make buildlinux`**: Builds the `cooder-assist` binary specifically for Linux (amd64 architecture).
 
-This will generate the `cooder-assist-local` and `cooder-assist` binaries in the `bin/` directory.
 
-**Running the code:**
-
-To run the application, move the binary to the root of your codebase and run :
-
-```bash
-./cooder-assist-local --cfgPath=. --cfgFile=agent-config-default.yml
-```
-Where cfgPath is the path to config and cfgFile is the file name of the config
 
 
 
