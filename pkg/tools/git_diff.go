@@ -9,9 +9,7 @@ import (
 	"google.golang.org/genai"
 )
 
-const gitDiffDescription = `Display the gitdiff of the file ` +
-	`execute this tool before executing edit_file and` +
-	`ask for approval for edit file after showing the diff`
+const gitDiffDescription = `Display the git diff of the file. This tool should be executed to review the changes before using the edit_file tool.  The user is responsible for calling this tool and reviewing the output before calling edit_file.`
 
 var gitDiffTool = &genai.Tool{
 	FunctionDeclarations: []*genai.FunctionDeclaration{
@@ -33,7 +31,12 @@ func GitDiff(path string) (string, error) {
 	cmd := exec.Command("git", "diff", path)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", fmt.Errorf("failed to stage changes: %w, output: %s", err, string(output))
+		exitError, ok := err.(*exec.ExitError)
+		if ok {
+			return "", fmt.Errorf("git diff command failed with exit code %d, output: %s", exitError.ExitCode(), string(output))
+
+		}
+		return "", fmt.Errorf("git diff command failed: %w, output: %s", err, string(output))
 	}
 	return string(output), nil
 }

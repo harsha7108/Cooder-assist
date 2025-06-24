@@ -77,19 +77,7 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 				response["error"] = err.Error()
 			}
 		} else if call.Name == "edit_file" {
-			// Call GitDiff before EditFile
-			diffOutput, err := GitDiff(call.Args["path"].(string))
-			if err != nil {
-				response["error"] = fmt.Errorf("failed to get git diff: %w", err)
-				return &genai.FunctionResponse{
-					ID:       call.ID,
-					Name:     call.Name,
-					Response: response,
-				}
-			}
-			response["output"] = "Git Diff:\n" + diffOutput
-
-			err = EditFile(call.Args["path"].(string), call.Args["old_string"].(string), call.Args["new_string"].(string))
+			err := EditFile(call.Args["path"].(string), call.Args["old_string"].(string), call.Args["new_string"].(string))
 			if err == nil {
 				response["output"] = "OK"
 			} else {
