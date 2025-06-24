@@ -22,7 +22,7 @@ var (
 	rootCmd = &cobra.Command{
 		Use:     "codingAssist [flags] [command]",
 		Short:   "coding assist client",
-		Example: `coding --cfgPath=../`,
+		Example: `codingAssist --cfgPath=../`,
 		Long:    ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			newProvisioner()
@@ -56,7 +56,7 @@ func newProvisioner() {
 	logger := log.Init("provisioner", "./logdump.log")
 	scanner := scanner.New()
 	tools := tools.New()
-	agent := agent.New(cfg.Client.Model, logger, client, scanner, tools)
+	agent := agent.New(cfg.ModelConfig.Model, logger, client, scanner, tools)
 
 	systemInstr := &genai.Content{
 		Parts: []*genai.Part{
@@ -69,10 +69,16 @@ func newProvisioner() {
 		CandidateCount:    1,
 		Tools:             tools,
 	}
-	chat, err := client.Chats.Create(ctx, cfg.Client.Model, config, nil)
+	chat, err := client.Chats.Create(ctx, cfg.ModelConfig.Model, config, nil)
 
 	agent.Run(ctx, chat)
 
+}
+
+func init() {
+	rootCmd.PersistentFlags().StringVar(&cfgPath, "cfgPath", "", "config file path (default is '.')")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "cfgFile", "", "config file name (default is 'agent-config-default.yml')")
+	rootCmd.AddCommand(versionCmd)
 }
 
 func ExecuteRootCommand() {

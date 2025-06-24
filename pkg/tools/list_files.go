@@ -10,9 +10,7 @@ import (
 	"google.golang.org/genai"
 )
 
-const listfilesDescription = `Lists files and directories in the directory specified ` +
-	`by the 'path' argument. If the 'path' argument is the empty string, lists the ` +
-	`files and directories in the current directory. On success, the output is a json encoded list.`
+const listfilesDescription = "List files and directories at a given path. If no path is provided, lists files in the current directory."
 
 var listFilesTool = &genai.Tool{
 	FunctionDeclarations: []*genai.FunctionDeclaration{

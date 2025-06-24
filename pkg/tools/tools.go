@@ -1,3 +1,4 @@
+// Package tools provides a set of tools that can be used by the AI.
 package tools
 
 import (
@@ -9,8 +10,9 @@ import (
 	"google.golang.org/genai"
 )
 
-type Tools []*genai.Tool
+type Tools []*genai.Tool // Tools is a slice of genai.Tool.
 
+// New creates a new set of tools.
 func New() Tools {
 	genAITools := make([]*genai.Tool, 0)
 	genAITools = append(genAITools, readFileTool, listFilesTool, editFileTool, createFileTool, gitCommitTool, diffTool)
@@ -18,21 +20,26 @@ func New() Tools {
 }
 
 var (
+	// expectedArgs defines the expected arguments for each tool.
 	expectedArgs = map[string]iter.Seq[string]{
 		"read_file":   maps.Keys(readFileTool.FunctionDeclarations[0].Parameters.Properties),
 		"list_files":  maps.Keys(listFilesTool.FunctionDeclarations[0].Parameters.Properties),
 		"edit_file":   maps.Keys(editFileTool.FunctionDeclarations[0].Parameters.Properties),
 		"create_file": maps.Keys(createFileTool.FunctionDeclarations[0].Parameters.Properties),
 		"git_commit":  maps.Keys(gitCommitTool.FunctionDeclarations[0].Parameters.Properties),
-		"git_diff":    maps.Keys(diffTool.FunctionDeclarations[0].Parameters.Properties),
+		"diff":        maps.Keys(diffTool.FunctionDeclarations[0].Parameters.Properties),
 	}
 )
 
+// ExecuteTool executes the tool specified in the given genai.FunctionCall.
+// It validates the arguments and calls the appropriate tool function.
 func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 	response := make(map[string]any)
 
 	name := call.Name
+	// Get the arguments passed to the tool
 	received := maps.Keys(call.Args)
+	// Check if the tool name is valid
 	if _, ok := expectedArgs[name]; !ok {
 		response["error"] = fmt.Errorf("tool named '%s' is unknown", name)
 	} else {
@@ -65,6 +72,7 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 		if len(missingRequired) > 0 {
 			response["error"] = fmt.Errorf("for tool named '%s' missing required arguments: %v", name, missingRequired)
 		} else if call.Name == "read_file" {
+			// Execute read file tool
 			content, err := ReadFile(call.Args["path"].(string))
 			if err == nil {
 				response["output"] = content
@@ -72,6 +80,7 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 				response["error"] = err.Error()
 			}
 		} else if call.Name == "list_files" {
+			// Execute list files tool
 			content, err := ListFiles(call.Args["path"].(string))
 			if err == nil {
 				response["output"] = content
@@ -79,6 +88,7 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 				response["error"] = err.Error()
 			}
 		} else if call.Name == "edit_file" {
+			// Execute edit file tool
 			err := EditFile(call.Args["path"].(string), call.Args["old_string"].(string), call.Args["new_string"].(string))
 			if err == nil {
 				response["output"] = "OK"
@@ -86,6 +96,7 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 				response["error"] = err.Error()
 			}
 		} else if call.Name == "create_file" {
+			// Execute create file tool
 			path := call.Args["path"].(string)
 			content := call.Args["content"].(string)
 
@@ -112,6 +123,7 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 				response["error"] = err.Error()
 			}
 		} else if call.Name == "diff" {
+			// Execute diff tool
 			content, err := Diff(call.Args["old_string"].(string), call.Args["new_string"].(string))
 			if err == nil {
 				response["output"] = content

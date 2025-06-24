@@ -17,11 +17,10 @@ const (
 )
 
 type Config struct {
-	Client Client
+	ModelConfig ModelConfig
 }
 
-type Client struct {
-	Name  string
+type ModelConfig struct {
 	Model string
 }
 

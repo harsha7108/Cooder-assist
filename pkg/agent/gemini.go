@@ -6,6 +6,7 @@ import (
 	"cooder-assist/pkg/scanner"
 	"cooder-assist/pkg/tools"
 	"fmt"
+	"strings"
 
 	"google.golang.org/genai"
 )
@@ -38,7 +39,28 @@ func New(model string, l log.Logger, client *genai.Client, scanner scanner.Scann
 		Tools:   tools,
 	}
 }
+func colorizeDiff(diff string) string {
+	lines := strings.Split(diff, "\n")
+	for i, line := range lines {
+		if strings.HasPrefix(line, "+") && !strings.HasPrefix(line, "+++") {
+			lines[i] = "\033[32m" + line + "\033[0m" // Green
+		} else if strings.HasPrefix(line, "-") && !strings.HasPrefix(line, "---") {
+			lines[i] = "\033[31m" + line + "\033[0m" // Red
+		}
+	}
+	return strings.Join(lines, "\n")
+}
 
+/*
+Run function manages the interaction loop between the user and the Gemini model. It takes a context and a Gemini chat object as input.
+
+It orchestrates the conversation between the user and the Gemini model, handling user input, sending messages to Gemini, processing Gemini's responses (including tool calls), and displaying the results to the user.
+*/
+/*
+Run function manages the interaction loop between the user and the Gemini model. It takes a context and a Gemini chat object as input.
+
+It orchestrates the conversation between the user and the Gemini model, handling user input, sending messages to Gemini, processing Gemini's responses (including tool calls), and displaying the results to the user.
+*/
 func (a *Agent) Run(ctx context.Context, chat *genai.Chat) error {
 	var conversation []genai.Part
 	readUserInput := true
@@ -53,7 +75,7 @@ func (a *Agent) Run(ctx context.Context, chat *genai.Chat) error {
 			fmt.Print("\u001b[94mYou\u001b[0m:")
 			userInput, ok := a.Scanner.GetUserMessage()
 			if !ok {
-				fmt.Println("Error getting user input")
+				fmt.Println("Empty user input is not accepted")
 				continue
 			}
 			conversation = append(conversation, genai.Part{Text: userInput})
@@ -90,9 +112,14 @@ func (a *Agent) Run(ctx context.Context, chat *genai.Chat) error {
 					fmt.Printf("\u001b[93mGemini\u001b[0m: %s\n", part.Text)
 				} else if part.FunctionCall != nil {
 					a.Logger.Info("Executing tool", "tool_name", part.FunctionCall.Name, "prompt", part.FunctionCall.Args)
-					conversation = append(conversation, genai.Part{
-						FunctionResponse: a.Tools.ExecuteTool(part.FunctionCall),
-					})
+					resp := a.Tools.ExecuteTool(part.FunctionCall)
+
+					if output, ok := resp.Response["output"].(string); ok {
+						fmt.Printf("\n\033[1;94m[Tool Output]\033[0m\n%s\n", colorizeDiff(output))
+					} else if errMsg, ok := resp.Response["error"].(string); ok {
+						fmt.Printf("\n\033[1;91m[Tool Error]\033[0m %s\n", errMsg)
+					}
+					conversation = append(conversation, genai.Part{FunctionResponse: resp})
 					hasToolCalls = true
 				}
 			}

@@ -10,7 +10,9 @@ import (
 	"google.golang.org/genai"
 )
 
-const editFileDescription = `Edit the contents of the file at the given relative 'path' argument by replacing instances of 'old_string' with 'new_string'. 'old_string' and 'new_string' must be different from each other. Before making any changes, the tool will output a plan of the proposed modifications and ask for your approval. If the file specified in 'path' does not exist, it will be created. DO NOT EDIT FILES WITHOUT EXPLICIT APPROVAL. ALWAYS PRESENT A PLAN OF CHANGES AND ASK FOR CONFIRMATION BEFORE PROCEEDING.`
+const editFileDescription = `Edit the contents of the file at the given relative 'path' argument by replacing instances of 'old_string' with 'new_string'.` +
+	` 'old_string' and 'new_string' must be different from each other. Before making any changes,you will output a plan of the proposed modifications show the diff between the changes using the diff tool and will ask for your approval.` +
+	` If the file specified in 'path' does not exist, it will be created. DO NOT EDIT FILES WITHOUT EXPLICIT APPROVAL. ALWAYS PRESENT A PLAN OF CHANGES AND ASK FOR CONFIRMATION BEFORE PROCEEDING.`
 
 var editFileTool = &genai.Tool{
 	FunctionDeclarations: []*genai.FunctionDeclaration{

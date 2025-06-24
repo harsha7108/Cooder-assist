@@ -4,6 +4,7 @@ package tools
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 
 	"google.golang.org/genai"
@@ -31,15 +32,32 @@ var diffTool = &genai.Tool{
 }
 
 func Diff(oldStr, newStr string) (string, error) {
-	cmd := exec.Command("diff", "<(echo %s)", "<(echo %s)", oldStr, newStr)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		exitError, ok := err.(*exec.ExitError)
-		if ok {
-			return "", fmt.Errorf("diff command failed with exit code %d, output: %s", exitError.ExitCode(), string(output))
 
-		}
-		return "", fmt.Errorf("diff command failed: %w, output: %s", err, string(output))
+	oldFile, err := os.CreateTemp("", "old-*.txt")
+	if err != nil {
+		return "", err
+	}
+	defer os.Remove(oldFile.Name())
+
+	newFile, err := os.CreateTemp("", "new-*.txt")
+	if err != nil {
+		return "", err
+	}
+	defer os.Remove(newFile.Name())
+
+	oldFile.WriteString(oldStr)
+	newFile.WriteString(newStr)
+	oldFile.Close()
+	newFile.Close()
+
+	cmd := exec.Command("diff", "-u", oldFile.Name(), newFile.Name())
+	output, err := cmd.CombinedOutput()
+
+	if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
+		return string(output), nil
+	}
+	if err != nil {
+		return "", fmt.Errorf("diff error: %w\noutput: %s", err, string(output))
 	}
 	return string(output), nil
 }

@@ -3,6 +3,7 @@ package scanner
 import (
 	"bufio"
 	"os"
+	"strings"
 )
 
 type Scanner struct {
@@ -18,6 +19,9 @@ func (s Scanner) GetUserMessage() (string, bool) {
 	for s.scn.Scan() {
 		line := s.scn.Text()
 		if line == "" {
+			if strings.TrimSpace(message) == "" {
+				return "", false
+			}
 			return message, true
 		}
 		message += line + "\n"

@@ -7,9 +7,7 @@ import (
 	"google.golang.org/genai"
 )
 
-const readFileDescription = `Read the contents of a file at a given relative ` +
-	`file path named by the "path" argument. Use this to see the text inside ` +
-	`the file. Do not use this with directory names.`
+const readFileDescription = "Read the contents of a given relative file path. Use this when you want to see what's inside a file. Do not use this with directory names."
 
 var readFileTool = &genai.Tool{
 	FunctionDeclarations: []*genai.FunctionDeclaration{
