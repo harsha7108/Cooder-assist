@@ -66,6 +66,8 @@ The `Makefile` provides targets for building the application.To build the applic
 *   **`make build`**: Builds the `cooder-assist-local` binary for your local operating system and architecture.
 *   **`make buildlinux`**: Builds the `cooder-assist` binary specifically for Linux (amd64 architecture).
 
+This will generate the `cooder-assist-local` and `cooder-assist` binaries in the `bin/` directory.
+
 **Running the code:**
 
 To run the application, move the binary to the root of your codebase and run :
@@ -73,8 +75,8 @@ To run the application, move the binary to the root of your codebase and run :
 ```bash
 ./cooder-assist-local --cfgPath=. --cfgFile=agent-config-default.yml
 ```
+Where cfgPath is the path to config and cfgFile is the file name of the config
 
-This will generate the `cooder-assist-local` and `cooder-assist` binaries in the `bin/` directory.
 
 
 
