@@ -13,7 +13,7 @@ type Tools []*genai.Tool
 
 func New() Tools {
 	genAITools := make([]*genai.Tool, 0)
-	genAITools = append(genAITools, readFileTool, listFilesTool, editFileTool, createFileTool, gitCommitTool, gitDiffTool)
+	genAITools = append(genAITools, readFileTool, listFilesTool, editFileTool, createFileTool, gitCommitTool, diffTool)
 	return genAITools
 }
 
@@ -24,7 +24,7 @@ var (
 		"edit_file":   maps.Keys(editFileTool.FunctionDeclarations[0].Parameters.Properties),
 		"create_file": maps.Keys(createFileTool.FunctionDeclarations[0].Parameters.Properties),
 		"git_commit":  maps.Keys(gitCommitTool.FunctionDeclarations[0].Parameters.Properties),
-		"git_diff":    maps.Keys(gitDiffTool.FunctionDeclarations[0].Parameters.Properties),
+		"git_diff":    maps.Keys(diffTool.FunctionDeclarations[0].Parameters.Properties),
 	}
 )
 
@@ -42,7 +42,7 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 
 		// Get required parameters based on tool name
 		switch name {
-		case "read_file", "list_files", "git_diff":
+		case "read_file", "list_files":
 			requiredParams = []string{"path"}
 		case "edit_file":
 			requiredParams = []string{"path", "old_string", "new_string"}
@@ -50,6 +50,8 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 			requiredParams = []string{"path", "content"}
 		case "git_commit":
 			requiredParams = []string{"message"}
+		case "diff":
+			requiredParams = []string{"old_string", "new_string"}
 		}
 
 		// Check for missing required parameters
@@ -109,8 +111,8 @@ func (t Tools) ExecuteTool(call *genai.FunctionCall) *genai.FunctionResponse {
 			} else {
 				response["error"] = err.Error()
 			}
-		} else if call.Name == "git_diff" {
-			content, err := GitDiff(call.Args["path"].(string))
+		} else if call.Name == "diff" {
+			content, err := Diff(call.Args["old_string"].(string), call.Args["new_string"].(string))
 			if err == nil {
 				response["output"] = content
 			} else {
